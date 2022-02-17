@@ -123,12 +123,48 @@ resource "google_filestore_instance" "instance" {
   tier = "BASIC_HDD"
 
   file_shares {
-    capacity_gb = 2660
+    capacity_gb = 1260
     name        = "share1"
   }
 
   networks {
     network = "${var.project_id}-vpc"
     modes   = ["MODE_IPV4"]
+  }
+}
+
+
+resource "kubernetes_persistent_volume" "persistentvolume" {
+  metadata {
+    name = "share1"
+  }
+  spec {
+    capacity = {
+      storage = "2Gi"
+    }
+    
+    access_modes = ["ReadWriteMany"]
+    persistent_volume_source {
+      nfs {
+        server = google_filestore_instance.instance.networks[0].ip_addresses[0]
+        path = "/${google_filestore_instance.instance.file_shares[0].name}"
+      }
+    }
+  }
+}
+
+resource "kubernetes_persistent_volume_claim" "app" {
+  metadata {
+    name = "app-${var.project_id}"
+  }
+  spec {
+    access_modes = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = "2Gi"
+      }
+    }
+    volume_name = kubernetes_persistent_volume.persistentvolume.metadata.0.name
+    storage_class_name = "standard"
   }
 }
