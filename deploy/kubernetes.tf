@@ -117,3 +117,18 @@ resource "kubernetes_horizontal_pod_autoscaler" "helloworldhpa" {
 }
 
 
+resource "google_filestore_instance" "instance" {
+  name = "helloworld-instance"
+  zone = "${var.region}-b"
+  tier = "BASIC_HDD"
+
+  file_shares {
+    capacity_gb = 2660
+    name        = "share1"
+  }
+
+  networks {
+    network = "${var.project_id}-vpc"
+    modes   = ["MODE_IPV4"]
+  }
+}
