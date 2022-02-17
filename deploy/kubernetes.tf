@@ -100,3 +100,18 @@ resource "kubernetes_service" "test" {
     }
   }
 }
+
+resource "kubernetes_horizontal_pod_autoscaler" "helloworldhpa" {
+  metadata {
+    name = "helloworldhpa"
+  }
+  spec {
+    max_replicas = 3
+    min_replicas = 2
+    target_cpu_utilization_percentage = 50
+    scale_target_ref {
+      kind = "Deployment"
+      name = "helloworld"
+    }
+  }
+}
