@@ -40,7 +40,7 @@ resource "kubernetes_deployment" "helloworld" {
     name = "helloworld"
     namespace = kubernetes_namespace.test.metadata.0.name
     labels = {
-      App = "hello-app"
+      app = "hello-app"
     }
   }
 
@@ -48,13 +48,13 @@ resource "kubernetes_deployment" "helloworld" {
     replicas = 2
     selector {
       match_labels = {
-        App = "hello-app"
+        app = "hello-app"
       }
     }
     template {
       metadata {
         labels = {
-          App = "hello-app"
+          app = "hello-app"
         }
       }
       spec {
@@ -86,10 +86,10 @@ resource "kubernetes_service" "test" {
   metadata {
     name      = "helloworld"
     namespace = kubernetes_namespace.test.metadata.0.name
-  }
+      }
   spec {
     selector = {
-      app = kubernetes_deployment.helloworld.spec.0.template.0.metadata.0.labels.App
+      app = kubernetes_deployment.helloworld.spec.0.template.0.metadata.0.labels.app
     }
     type = "LoadBalancer"
     session_affinity = "ClientIP"
