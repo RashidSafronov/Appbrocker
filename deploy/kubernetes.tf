@@ -82,6 +82,56 @@ resource "kubernetes_deployment" "helloworld" {
     }
   }
 }
+
+resource "kubernetes_deployment" "sqlproxy" {
+  metadata {
+    name = "sqlproxy"
+    namespace = kubernetes_namespace.test.metadata.0.name
+    labels = {
+      app = "sqlproxy"
+    }
+  }
+
+  spec {
+    replicas = 2
+    selector {
+      match_labels = {
+        app = "sqlproxy"
+      }
+    }
+    template {
+      metadata {
+        labels = {
+          app = "sqlproxy"
+        }
+      }
+      spec {
+        container {
+          image = "gcr.io/cloudsql-docker/gce-proxy:1.28.0"
+         
+          name  = "sqlproxy"
+
+          port {
+            container_port = 3306
+          }
+
+          resources {
+            limits = {
+              cpu    = "1"
+              memory = "2Gi"
+            }
+            requests = {
+              cpu    = "0.5"
+              memory = "512Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
 resource "kubernetes_service" "test" {
   metadata {
     name      = "helloworld"

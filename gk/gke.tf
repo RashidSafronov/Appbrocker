@@ -18,6 +18,26 @@ resource "google_container_cluster" "primary" {
   name     = "${var.project_id}-gke2"
   location = var.region
   
+  
+  cluster_autoscaling  {
+    enabled = true
+    resource_limits {
+      resource_type = "cpu"
+      minimum = 6
+      maximum = 30
+    }
+   resource_limits {
+      resource_type = "memory"
+      minimum = 12
+      maximum = 48
+    }
+  }
+  auto_provisioning_defaults {
+  oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform"
+    ]
+    }
+  
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
   # node pool and immediately delete it.
@@ -34,7 +54,14 @@ resource "google_container_node_pool" "primary_nodes" {
   location   = var.region
   cluster    = google_container_cluster.primary.name
   node_count = var.gke_num_nodes
-
+  
+ 
+    autoscaling {
+    min_node_count = 1
+    max_node_count = 6
+  }
+  
+  
   node_config {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
@@ -45,7 +72,7 @@ resource "google_container_node_pool" "primary_nodes" {
     }
 
     # preemptible  = true
-    machine_type = "n1-standard-1"
+    machine_type = "e2-medium"
     tags         = ["gke-node", "${var.project_id}-gke"]
     metadata = {
       disable-legacy-endpoints = "true"
