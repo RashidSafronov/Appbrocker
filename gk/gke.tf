@@ -15,7 +15,7 @@ variable "gke_num_nodes" {
 
 # GKE cluster
 resource "google_container_cluster" "primary" {
-  name     = "${var.project_id}-gke2"
+  name     = "${var.project_id}-gke1"
   location = var.region
   
   
@@ -31,12 +31,13 @@ resource "google_container_cluster" "primary" {
       minimum = 12
       maximum = 48
     }
-  }
-  auto_provisioning_defaults {
-  oauth_scopes = [
+    auto_provisioning_defaults {
+      oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
     }
+  }
+  
   
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
